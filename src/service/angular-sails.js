@@ -220,7 +220,13 @@
             }
 
             angular.forEach(provider.httpVerbs, promisify);
-            angular.forEach(provider.eventNames, wrapEvent);
+            
+            wrapEvent(provider.eventNames[0]);
+            wrapEvent(provider.eventNames[1]);
+
+            socket.on('connect', function() {
+                wrapEvent(provider.eventNames[2]);
+            });
 
 
             /**
