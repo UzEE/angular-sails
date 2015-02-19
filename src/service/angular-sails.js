@@ -52,6 +52,7 @@
         this.eventNames = ['on', 'off', 'once'];
 
         this.url = undefined;
+        this.socket = null;
 
         this.urlPrefix = '';
 
@@ -77,7 +78,13 @@
 
         /*@ngInject*/
         this.$get = function($q, $injector, $rootScope, $log, $timeout) {
-            var socket = (io.sails && io.sails.connect || io.connect)(provider.url, provider.config);
+            var socket;
+
+            if (!provider.socket) {
+                socket = (io.sails && io.sails.connect || io.connect)(provider.url, provider.config);
+            } else {
+                socket = provider.socket;
+            }
 
             socket.connect = function(opts){
                 if(!socket.isConnected()){
