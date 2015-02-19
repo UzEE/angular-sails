@@ -56,6 +56,7 @@ angular.module('ngSails', ['ng']);
         this.eventNames = ['on', 'off', 'once'];
 
         this.url = undefined;
+        this.socket = null;
 
         this.urlPrefix = '';
 
@@ -81,7 +82,13 @@ angular.module('ngSails', ['ng']);
 
         /*@ngInject*/
         this.$get = ["$q", "$injector", "$rootScope", "$log", "$timeout", function($q, $injector, $rootScope, $log, $timeout) {
-            var socket = (io.sails && io.sails.connect || io.connect)(provider.url, provider.config);
+            var socket;
+
+            if (!provider.socket) {
+                socket = (io.sails && io.sails.connect || io.connect)(provider.url, provider.config);
+            } else {
+                socket = provider.socket;
+            }
 
             socket.connect = function(opts){
                 if(!socket.isConnected()){
@@ -224,7 +231,13 @@ angular.module('ngSails', ['ng']);
             }
 
             angular.forEach(provider.httpVerbs, promisify);
-            angular.forEach(provider.eventNames, wrapEvent);
+            
+            wrapEvent(provider.eventNames[0]);
+            wrapEvent(provider.eventNames[1]);
+
+            socket.on('connect', function() {
+                wrapEvent(provider.eventNames[2]);
+            });
 
 
             /**
